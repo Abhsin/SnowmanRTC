@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Multiplayer Snake</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+            <header>
+        <h1>🎨 WebRTC Multiplayer Pixel Art</h1>
+        <p>Real-time collaborative pixel illustration maker</p>
+    </header>
+
+        <div id="menu" class="menu">
+            <div class="menu-card">
+                <h2>Join Game</h2>
+                <div class="input-group">
+                    <label for="playerName">Your Name:</label>
+                    <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+                </div>
+                <div class="input-group">
+                    <label for="roomId">Room ID:</label>
+                    <input type="text" id="roomId" placeholder="Enter room ID or leave blank for random">
+                </div>
+                <button id="joinButton" class="btn btn-primary">Join Game</button>
+                <button id="createRoomButton" class="btn btn-secondary">Create Random Room</button>
+            </div>
+        </div>
+
+        <div id="lobby" class="lobby hidden">
+            <div class="lobby-card">
+                <h2>Game Lobby</h2>
+                <div class="room-info">
+                    <p>Room ID: <span id="currentRoomId" class="room-id"></span></p>
+                    <button id="copyRoomId" class="btn btn-small">Copy Room ID</button>
+                </div>
+                <div class="players-section">
+                    <h3>Players Connected:</h3>
+                    <ul id="playersList"></ul>
+                </div>
+                <div class="connection-status">
+                    <p>Connection Status: <span id="connectionStatus">Connecting...</span></p>
+                </div>
+                <div class="ready-section">
+                    <button id="readyButton" class="btn btn-secondary">Ready Up!</button>
+                    <div class="ready-status">
+                        <p id="readyStatusText">Mark yourself ready to start drawing</p>
+                    </div>
+                </div>
+                <div class="lobby-chat">
+                    <h3>💬 Pre-game Chat</h3>
+                    <div class="lobby-chat-messages" id="lobbyChatMessages">
+                        <div class="chat-message system">
+                            <span class="message-text">Welcome! Chat with other players while waiting.</span>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="lobbyChatInput" placeholder="Type a message..." maxlength="200">
+                        <button id="sendLobbyMessage" class="btn btn-small">Send</button>
+                    </div>
+                </div>
+                <button id="startDrawingButton" class="btn btn-primary">Start Drawing</button>
+                <button id="leaveGameButton" class="btn btn-secondary">Leave Game</button>
+            </div>
+        </div>
+
+        <div id="drawingArea" class="drawing-area hidden">
+            <div class="drawing-info">
+                <div class="drawing-controls">
+                    <div class="control-group">
+                        <label>Mode:</label>
+                        <select id="drawingMode">
+                            <option value="free">Free Draw</option>
+                            <option value="turn">Turn-based</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Tool:</label>
+                        <select id="drawingTool">
+                            <option value="pencil">Pencil</option>
+                            <option value="eraser">Eraser</option>
+                            <option value="fill">Fill</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Size:</label>
+                        <input type="range" id="brushSize" min="1" max="10" value="2">
+                        <span id="brushSizeDisplay">2px</span>
+                    </div>
+                </div>
+                <div class="color-palette">
+                    <div class="color-option active" data-color="#000000" style="background: #000000"></div>
+                    <div class="color-option" data-color="#ffffff" style="background: #ffffff"></div>
+                    <div class="color-option" data-color="#ff0000" style="background: #ff0000"></div>
+                    <div class="color-option" data-color="#00ff00" style="background: #00ff00"></div>
+                    <div class="color-option" data-color="#0000ff" style="background: #0000ff"></div>
+                    <div class="color-option" data-color="#ffff00" style="background: #ffff00"></div>
+                    <div class="color-option" data-color="#ff00ff" style="background: #ff00ff"></div>
+                    <div class="color-option" data-color="#00ffff" style="background: #00ffff"></div>
+                    <div class="color-option" data-color="#ffa500" style="background: #ffa500"></div>
+                    <div class="color-option" data-color="#800080" style="background: #800080"></div>
+                    <div class="color-option" data-color="#ffc0cb" style="background: #ffc0cb"></div>
+                    <div class="color-option" data-color="#a52a2a" style="background: #a52a2a"></div>
+                    <input type="color" id="colorPicker" value="#000000">
+                </div>
+                <div class="drawing-actions">
+                    <button id="clearCanvas" class="btn btn-small btn-danger">Clear Canvas</button>
+                    <button id="saveImage" class="btn btn-small">Save Image</button>
+                    <button id="endDrawing" class="btn btn-small">End Session</button>
+                </div>
+            </div>
+            <div class="main-drawing-container">
+                <div class="canvas-container">
+                    <div class="turn-indicator" id="turnIndicator">
+                        <span id="currentTurnPlayer">Your turn!</span>
+                        <div class="turn-timer" id="turnTimer">30s</div>
+                    </div>
+                    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+                    <div class="canvas-overlay" id="canvasOverlay"></div>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h3>💬 Chat</h3>
+                        <button id="toggleChat" class="btn btn-small">Hide</button>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message system">
+                            <span class="message-text">Welcome to the drawing session! Use chat to communicate with other players.</span>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chatInput" placeholder="Type a message..." maxlength="200">
+                        <button id="sendMessage" class="btn btn-small">Send</button>
+                    </div>
+                </div>
+            </div>
+            <button id="showChatButton" class="show-chat-button">
+                💬 Show Chat
+            </button>
+            <div class="drawing-instructions">
+                <p><strong>Free Draw Mode:</strong> Everyone can draw simultaneously</p>
+                <p><strong>Turn-based Mode:</strong> Take turns drawing (30 seconds each)</p>
+                <p>Use mouse/touch to draw on the pixel canvas</p>
+            </div>
+        </div>
+
+        <div id="sessionOver" class="session-over hidden">
+            <div class="session-over-card">
+                <h2>Drawing Session Complete!</h2>
+                <div id="sessionSummary">
+                    <p>Great collaborative artwork!</p>
+                    <canvas id="finalArtwork" width="200" height="150"></canvas>
+                </div>
+                <button id="drawAgainButton" class="btn btn-primary">Draw Again</button>
+                <button id="backToMenuButton" class="btn btn-secondary">Back to Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notifications" class="notifications"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="webrtc.js"></script>
+    <script src="drawing.js"></script>
+    <script src="main.js"></script>
+</body>
+</html> 
