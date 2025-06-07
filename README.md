@@ -9,7 +9,7 @@ A real-time collaborative pixel art drawing application with WebRTC peer-to-peer
 
 ## 🚀 Live Demo
 
-🎮 **[Play Now!](https://your-app-url.onrender.com)** (Replace with your deployed URL)
+🎮 **[Play Now!](https://snowmanrtc.onrender.com)** (Replace with your deployed URL)
 
 ## ✨ Features
 
